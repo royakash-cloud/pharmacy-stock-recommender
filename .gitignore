@@ -1,6 +1,7 @@
 # Project-specific: raw purchase data and run logs never go to GitHub
 data/raw/
 logs/
+possible_duplicates.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
