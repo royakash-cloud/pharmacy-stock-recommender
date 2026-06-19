@@ -1,5 +1,7 @@
 # Pharmacy Stock Recommender
 
+**Live:** https://royakash-cloud.github.io/pharmacy-stock-recommender/
+
 A Smart Stock Recommender for an independent pharmacy: every day it
 surfaces 50 products to check and reorder, rotating across a 31-day
 cycle with zero repetition, with quantities adjusted for seasonal
@@ -52,4 +54,6 @@ pip install -r scripts/requirements.txt
 
 ## Status
 
-Phase 1 (project setup) complete. Phase 2 (data pipeline) in progress.
+Phases 1-5 complete: project setup, data pipeline, algorithm/recommender,
+viewer, polish, and live deploy on GitHub Pages. Phase 6 (monthly
+retrain routine, above) is the ongoing operational step.
