@@ -42,15 +42,8 @@ pip install -r scripts/requirements.txt
 
 ## Monthly retrain routine
 
-1. Export the latest purchase data to CSV
-2. Place it in `data/raw/`
-3. Run: `python scripts/generate.py`
-4. Check the console output / `logs/generate.log` for any warnings
-5. Confirm `docs/schedule.json` was updated
-6. `git add docs/schedule.json`
-7. `git commit -m "Retrain — <month> <year> data"`
-8. `git push`
-9. GitHub Pages auto-updates within a minute — refresh the phone page
+See [RETRAIN.md](RETRAIN.md) — run `.\retrain.ps1` after dropping the
+new export into `data/raw/`.
 
 ## Status
 
