@@ -63,6 +63,19 @@ def load_raw_data():
         glob.glob(os.path.join(RAW_DIR, "*.xlsx"))
         + glob.glob(os.path.join(RAW_DIR, "*.xls"))
     )
+
+    # A new monthly export with an unsupported/typo'd extension would
+    # otherwise be skipped exactly like apr_may_26_27.xls was -- no
+    # error, just a silently stale retrain. Warn loudly instead.
+    all_files = {p for p in glob.glob(os.path.join(RAW_DIR, "*")) if os.path.isfile(p)}
+    unmatched = sorted(all_files - set(paths))
+    if unmatched:
+        print(
+            f"WARNING: {len(unmatched)} file(s) in {RAW_DIR} were NOT loaded "
+            f"(unsupported extension, expected .xlsx/.xls): "
+            + ", ".join(os.path.basename(p) for p in unmatched)
+        )
+
     frames = [pd.read_excel(p) for p in paths]
     df = pd.concat(frames, ignore_index=True)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")

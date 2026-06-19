@@ -127,10 +127,8 @@ nothing else in the system checks.
   products, 1,422 seasonal alerts, up from 969 before the fix —
   consistent with 3 additional months of seasonal signal, not noise).
 
-**Possible follow-up (not yet implemented):** the loader could log a
-warning listing any files in `data/raw/` that don't match a supported
-extension, so a future mismatched export is caught immediately
-instead of silently producing a stale schedule again.
+**Follow-up:** the loader now warns about any unsupported-extension
+file in `data/raw/` instead of silently skipping it — see §6.
 
 ## 5. Operational design: logging for a script with no live monitoring
 
@@ -141,3 +139,32 @@ unattended, once a month, by a non-engineer end user — if a retrain
 "looks wrong" weeks later, the log file needs to be enough to
 diagnose it without re-running and guessing. This log was exactly
 what made the bug in §4 traceable after the fact.
+
+## 6. Monthly retrain routine — carried-over operational notes
+
+The routine itself is documented in `README.md`; these are the
+caveats that came directly out of the §4 incident, worth keeping
+visible so they don't get re-learned the hard way:
+
+- Both `.xlsx` and `.xls` exports in `data/raw/` are now picked up
+  automatically (post-fix) — no manual conversion needed before
+  dropping a new month's file in.
+- A clean `generate.py` exit does not mean the retrain used all the
+  data it should have — that's exactly what happened in §4. After
+  every run, check `logs/generate.log` for the line `Summary: ...
+  anchor month <YYYY-MM>` and confirm it matches the most recent
+  month in the new export, not just "no errors were printed."
+- Old `.xlsx`/`.xls` files in `data/raw/` should never be deleted
+  between retrains. The pipeline reloads and recombines every file in
+  that folder on each run; it has no other persisted state, so
+  removing an old file silently shrinks the training history.
+
+**Follow-up — implemented:** `load_raw_data()` now diffs every file
+actually present in `data/raw/` against the set it loaded, and prints
+a `WARNING:` line naming any file with an unsupported extension (e.g.
+a stray `.csv` or a typo'd extension). Verified by dropping a `.csv`
+into `data/raw/` and confirming the warning fires, then confirming it
+stays silent with only valid files present. This converts the §4
+failure mode from silent to loud — a future mismatched export now
+surfaces in `logs/generate.log` immediately instead of only showing
+up as a suspiciously stale `anchor_month` weeks later.
