@@ -10,16 +10,20 @@
   <header>
     <h1 id="day-heading">Loading...</h1>
     <p id="date-line"></p>
+    <p id="last-updated"></p>
   </header>
+
+  <div id="status-message" class="status-message hidden"></div>
 
   <div id="seasonal-banner" class="banner hidden"></div>
 
-  <main>
+  <main id="main-content" class="hidden">
     <section id="day-view">
       <div class="day-view-controls">
         <h2 id="viewing-label">Today's products</h2>
         <button id="download-csv">Download Today's List as CSV</button>
       </div>
+      <p id="empty-day-message" class="hidden"></p>
       <div class="table-scroll">
         <table id="products-table">
           <thead>

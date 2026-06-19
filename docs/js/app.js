@@ -71,17 +71,28 @@ function renderDay(day) {
     day === todayDayOfMonth() ? "Today's products" : `Day ${day} products`;
 
   const tbody = document.getElementById("products-tbody");
+  const emptyMsg = document.getElementById("empty-day-message");
   tbody.innerHTML = "";
-  products.forEach((p, i) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${p.name}</td>
-      <td>${p.recommended_qty}</td>
-      <td>${badgeHtml(p.si_category)}</td>
-    `;
-    tbody.appendChild(row);
-  });
+
+  // Defensive: schedule.json should always have all 31 day keys, but
+  // if it's ever malformed or only partially generated, show a clear
+  // message instead of silently rendering a blank table.
+  if (products.length === 0) {
+    emptyMsg.textContent = `No products scheduled for day ${day}.`;
+    emptyMsg.classList.remove("hidden");
+  } else {
+    emptyMsg.classList.add("hidden");
+    products.forEach((p, i) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${p.name}</td>
+        <td>${p.recommended_qty}</td>
+        <td>${badgeHtml(p.si_category)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
 
   document.querySelectorAll(".calendar-day").forEach((btn) => {
     btn.classList.toggle("selected", Number(btn.dataset.day) === day);
@@ -139,9 +150,38 @@ function downloadCsv() {
   URL.revokeObjectURL(url);
 }
 
+function showStatus(message, isError) {
+  const el = document.getElementById("status-message");
+  el.textContent = message;
+  el.classList.remove("hidden");
+  el.classList.toggle("status-error", Boolean(isError));
+  document.getElementById("main-content").classList.add("hidden");
+}
+
+function hideStatus() {
+  document.getElementById("status-message").classList.add("hidden");
+  document.getElementById("main-content").classList.remove("hidden");
+}
+
+function renderLastUpdated() {
+  document.getElementById("last-updated").textContent = `Last updated: ${scheduleData.generated_on}`;
+}
+
 async function init() {
   renderHeader();
-  scheduleData = await loadSchedule();
+  showStatus("Loading schedule...");
+
+  try {
+    scheduleData = await loadSchedule();
+  } catch (err) {
+    // Most likely cause: generate.py hasn't been run yet, so
+    // docs/schedule.json doesn't exist (fetch returns a 404).
+    showStatus("No schedule found — has generate.py been run yet?", true);
+    return;
+  }
+
+  hideStatus();
+  renderLastUpdated();
 
   const todayProducts = (scheduleData.days[String(todayDayOfMonth())] || { products: [] }).products;
   renderSeasonalBanner(todayProducts);
