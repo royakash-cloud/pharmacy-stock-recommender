@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pharmacy Stock Recommender</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1 id="day-heading">Loading...</h1>
+    <p id="date-line"></p>
+  </header>
+
+  <div id="seasonal-banner" class="banner hidden"></div>
+
+  <main>
+    <section id="day-view">
+      <div class="day-view-controls">
+        <h2 id="viewing-label">Today's products</h2>
+        <button id="download-csv">Download Today's List as CSV</button>
+      </div>
+      <div class="table-scroll">
+        <table id="products-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product Name</th>
+              <th>Rec Qty</th>
+              <th>Season</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="calendar-section">
+      <h2>Calendar — 31-day cycle</h2>
+      <div id="calendar-grid"></div>
+    </section>
+
+    <section id="alerts-section">
+      <h2>All Seasonal Alerts (<span id="alerts-count">0</span>)</h2>
+      <button id="toggle-alerts">View All Alerts</button>
+      <div id="alerts-list" class="hidden"></div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

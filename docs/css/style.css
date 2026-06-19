@@ -1,0 +1,174 @@
+/* Mobile-first: base styles target small phone screens, then we
+   widen things at larger breakpoints with @media queries below. */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  /* Safety net: nothing on the page (table, banner, etc.) should be
+     able to force horizontal scrolling on the whole document -- a
+     too-wide child should scroll within its own container instead
+     (see .table-scroll below). */
+  overflow-x: hidden;
+  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #f5f6f8;
+  color: #1a1a1a;
+}
+
+header {
+  background: #14532d;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+header p {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.banner {
+  background: #fff3cd;
+  color: #7a5c00;
+  padding: 10px 12px;
+  font-weight: bold;
+  font-size: 0.92rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+main {
+  padding: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+section {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.day-view-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #14532d;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0f3d22;
+}
+
+.table-scroll {
+  /* On narrow phones the table (long product names + a badge column)
+     is wider than the screen. Scrolling it sideways within this
+     wrapper keeps the rest of the page (header, banner, buttons)
+     intact instead of the whole document overflowing. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+th {
+  background: #f0f2f0;
+  position: sticky;
+  top: 0;
+}
+
+#calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day {
+  background: #e9ecef;
+  color: #1a1a1a;
+  padding: 8px 0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.calendar-day.today {
+  border: 2px solid #14532d;
+  font-weight: bold;
+}
+
+.calendar-day.selected {
+  background: #14532d;
+  color: white;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.badge-PEAK   { background: #ffe1e1; color: #b30000; }
+.badge-HIGH   { background: #fff3cd; color: #7a5c00; }
+.badge-NORMAL { background: #eef0ee; color: #444; }
+.badge-LOW    { background: #dceeff; color: #00468a; }
+.badge-OFF    { background: #e2e2e2; color: #333; }
+
+.alert-row {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.88rem;
+}
+
+/* Wider screens: allow the page to breathe a bit and make the
+   calendar grid denser instead of stretching across a phone-width
+   column of 7. */
+@media (min-width: 600px) {
+  header h1 {
+    font-size: 1.8rem;
+  }
+
+  .day-view-controls {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #calendar-grid {
+    grid-template-columns: repeat(10, 1fr);
+  }
+}
