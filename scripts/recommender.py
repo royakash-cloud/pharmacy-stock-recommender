@@ -33,7 +33,14 @@ from algorithm import (
 from seasonal_index_engine import run_seasonal_pipeline
 
 VELOCITY_CODE = {"Fast": "F", "Medium": "M", "Slow": "S"}
-VELOCITY_NAME = {v: k for k, v in VELOCITY_CODE.items()}
+
+# Caps the seasonal multiplier. The engine's growth-adjusted baseline
+# can shrink toward zero for low-volume products with a sharply
+# declining 3-year trend; dividing by that near-zero baseline then
+# produces SI values like 40x from a single ordinary purchase -- not
+# real seasonality, just noise. Capping keeps both the displayed SI
+# and the actual recommended quantity sane.
+SI_DISPLAY_CAP = 5.0
 
 
 def prepare_seasonal_input(df):
@@ -76,21 +83,44 @@ def schedule_to_daily_recs(schedule, base_qty):
 
 def finalize_recommendations(modified_recs):
     """Rounds final quantities to whole units (never below 1) and
-    reshapes each entry into a plain dict for the schedule output."""
+    reshapes each entry into a plain dict for the schedule output.
+    velocity stays as the single-letter F/M/S code, matching the
+    schedule.json contract in CLAUDE.md.
+
+    qty here is already base_qty * si_val (the engine computed that
+    multiplication internally). If si_val exceeds SI_DISPLAY_CAP, qty
+    is rescaled down proportionally so the capped SI and the
+    recommended quantity stay consistent with each other."""
     finalized = {}
     for day_str, products in modified_recs.items():
         day_list = []
         for name, qty, _mrp, _share, vel, si_val, si_cat in products:
+            si_val = float(si_val)
+            if si_val > SI_DISPLAY_CAP:
+                qty = qty * (SI_DISPLAY_CAP / si_val)
+                si_val = SI_DISPLAY_CAP
             final_qty = max(1, round(qty))
             day_list.append({
                 "name": name,
                 "recommended_qty": int(final_qty),
-                "si": round(float(si_val), 2),
+                "si": round(si_val, 2),
                 "si_category": si_cat,
-                "velocity": VELOCITY_NAME[vel],
+                "velocity": vel,
             })
         finalized[int(day_str)] = day_list
     return finalized
+
+
+def cap_alerts(alerts, cap=SI_DISPLAY_CAP):
+    """Same SI cap applied to the alert list's si/suggested_multiplier
+    fields, for the same near-zero-baseline noise reason."""
+    capped = []
+    for alert in alerts:
+        alert = dict(alert)
+        alert["si"] = min(alert["si"], cap)
+        alert["suggested_multiplier"] = min(alert["suggested_multiplier"], cap)
+        capped.append(alert)
+    return capped
 
 
 def build_recommendations(current_date=None):
@@ -121,7 +151,7 @@ def build_recommendations(current_date=None):
 
     return {
         "recommendations": recommendations,
-        "alerts": seasonal_results["alerts"],
+        "alerts": cap_alerts(seasonal_results["alerts"]),
         "seasonal_summary": seasonal_results["seasonal_summary"],
         "anchor_month": str(anchor_month),
     }
