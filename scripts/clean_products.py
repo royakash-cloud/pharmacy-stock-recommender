@@ -56,7 +56,13 @@ MAPPING_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "name_mappi
 
 
 def load_raw_data():
-    paths = sorted(glob.glob(os.path.join(RAW_DIR, "*.xlsx")))
+    # Monthly retrain exports sometimes come back as legacy .xls
+    # (e.g. POS "export to Excel") instead of .xlsx -- glob for both
+    # so a differently-formatted export isn't silently skipped.
+    paths = sorted(
+        glob.glob(os.path.join(RAW_DIR, "*.xlsx"))
+        + glob.glob(os.path.join(RAW_DIR, "*.xls"))
+    )
     frames = [pd.read_excel(p) for p in paths]
     df = pd.concat(frames, ignore_index=True)
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
